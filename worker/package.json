@@ -1,0 +1,18 @@
+{
+  "name": "reelwright-remote",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Optional self-hosted remote dashboard for Reelwright (Cloudflare Worker + D1).",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute reelwright --remote --file=schema.sql",
+    "db:init:local": "wrangler d1 execute reelwright --local --file=schema.sql",
+    "audit": "npm audit --audit-level=high"
+  },
+  "engines": { "node": ">=22.12.0" },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+dist-test/
+bundle/
+*.tgz
+.DS_Store
+.env
+.env.*
+
+.dev.vars
+.wrangler/
+worker/node_modules/

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reelwright — Reels de Instagram desde tu web, en local (servidor MCP de código abierto)</title>
+<meta name="description" content="Reelwright es un servidor MCP gratuito y de código abierto que convierte tu web en Reels de Instagram. Renderiza en tu propio ordenador, funciona con Claude y solo publica cuando tú lo apruebas.">
+<link rel="canonical" href="https://danikeinox.github.io/reelwright/es/">
+<link rel="alternate" hreflang="en" href="https://danikeinox.github.io/reelwright/">
+<link rel="alternate" hreflang="es" href="https://danikeinox.github.io/reelwright/es/">
+<link rel="alternate" hreflang="x-default" href="https://danikeinox.github.io/reelwright/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Reelwright — Reels de Instagram desde tu web, en local (servidor MCP de código abierto)">
+<meta property="og:description" content="Reelwright es un servidor MCP gratuito y de código abierto que convierte tu web en Reels de Instagram. Renderiza en tu propio ordenador, funciona con Claude y solo publica cuando tú lo apruebas.">
+<meta property="og:url" content="https://danikeinox.github.io/reelwright/es/">
+<meta name="twitter:card" content="summary">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../style.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Reelwright", "applicationCategory": "MultimediaApplication", "operatingSystem": "Windows, macOS, Linux", "description": "Reelwright es un servidor MCP gratuito y de código abierto que convierte tu web en Reels de Instagram. Renderiza en tu propio ordenador, funciona con Claude y solo publica cuando tú lo apruebas.", "url": "https://danikeinox.github.io/reelwright/es/", "license": "https://opensource.org/license/mit", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "codeRepository": "https://github.com/danikeinox/reelwright", "inLanguage": "es"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "¿Es realmente gratis?", "acceptedAnswer": {"@type": "Answer", "text": "Reelwright es MIT y no cobra nada. La API de Instagram es gratuita. Remotion, el motor de vídeo, es gratis para particulares y equipos de hasta tres personas; las empresas mayores necesitan licencia de Remotion."}}, {"@type": "Question", "name": "¿Dónde están mis tokens?", "acceptedAnswer": {"@type": "Answer", "text": "Solo en un archivo privado de tu ordenador (~/.reelwright/config.json, modo 0600). El panel remoto opcional nunca los guarda."}}, {"@type": "Question", "name": "¿Puede publicar la IA sin mí?", "acceptedAnswer": {"@type": "Answer", "text": "No. No existe ninguna herramienta para aprobar. La aprobación va ligada al SHA-256 del vídeo y del texto, y la das tú en el panel, en la terminal o en un aviso de confirmación."}}, {"@type": "Question", "name": "¿Qué cuentas de Instagram sirven?", "acceptedAnswer": {"@type": "Answer", "text": "Cuentas Business o Creator con la API de Instagram con inicio de sesión de Instagram."}}, {"@type": "Question", "name": "¿Necesita un servidor?", "acceptedAnswer": {"@type": "Answer", "text": "No. Todo corre en tu ordenador. Si quieres acceso remoto, hay un panel opcional que alojas tú en tu propia cuenta de Cloudflare."}}]}</script>
+</head>
+<body>
+<header><div class="wrap"><a class="logo" href="https://danikeinox.github.io/reelwright/es/">Reelwright</a><nav><a href="https://github.com/danikeinox/reelwright/tree/main/docs">Docs</a><a href="https://github.com/danikeinox/reelwright">GitHub</a><a href="https://danikeinox.github.io/reelwright/" hreflang="en">English</a></nav></div></header>
+<main class="wrap">
+<section class="hero"><h1>Convierte tu web en Reels de Instagram. En tu propio ordenador.</h1><p class="lead">Reelwright es un servidor MCP gratuito y de código abierto. Conéctalo a Claude: lee tu web, renderiza Reels con tu marca en local y solo publica en Instagram cuando tú los apruebas.</p>
+<a class="cta" href="#install">Instalar</a><a class="cta alt" href="https://github.com/danikeinox/reelwright">Ver en GitHub</a></section>
+<section class="grid"><div class="card"><h3>Local primero</h3><p>Los vídeos se renderizan en tu máquina con Remotion. No se sube nada a un servidor de Reelwright porque no existe.</p></div><div class="card"><h3>Tú apruebas todo</h3><p>La IA no puede aprobar. Revisas el vídeo y el texto exactos en un panel o en la terminal; si cambia cualquiera, la aprobación se anula.</p></div><div class="card"><h3>Coste cero de mantenimiento</h3><p>Túnel temporal gratuito de Cloudflare para publicar, o tu propio bucket S3/R2. Voz local con VoiceStudio.</p></div><div class="card"><h3>Con cualquier cliente MCP</h3><p>Claude Desktop, Claude Code y otros clientes MCP. La IA es la que tú conectes.</p></div><div class="card"><h3>Privado por diseño</h3><p>Los tokens viven en un archivo 0600 en tu ordenador, se ocultan en los errores y nunca se muestran a un navegador ni a una IA.</p></div><div class="card"><h3>Código abierto (MIT)</h3><p>Dependencias auditadas en CI, CodeQL y procedencia en npm. Sin cuentas ni telemetría.</p></div></section>
+<h2>Cómo funciona</h2><ol><li>Instala Reelwright y ejecuta el asistente.</li><li>Añádelo a Claude con un comando.</li><li>Pídele a Claude: «Haz un Reel de mi web».</li><li>Revisa el resultado en el panel local, aprueba y publica.</li></ol>
+<h2 id="install">Instalación</h2><pre><code>npm install -g reelwright
+reelwright setup
+reelwright install-claude
+# Claude Code:
+claude mcp add reelwright -- reelwright serve</code></pre>
+<p class="note">Node.js 22.12+</p>
+<h2>Preguntas</h2><details><summary>¿Es realmente gratis?</summary><p>Reelwright es MIT y no cobra nada. La API de Instagram es gratuita. Remotion, el motor de vídeo, es gratis para particulares y equipos de hasta tres personas; las empresas mayores necesitan licencia de Remotion.</p></details><details><summary>¿Dónde están mis tokens?</summary><p>Solo en un archivo privado de tu ordenador (~/.reelwright/config.json, modo 0600). El panel remoto opcional nunca los guarda.</p></details><details><summary>¿Puede publicar la IA sin mí?</summary><p>No. No existe ninguna herramienta para aprobar. La aprobación va ligada al SHA-256 del vídeo y del texto, y la das tú en el panel, en la terminal o en un aviso de confirmación.</p></details><details><summary>¿Qué cuentas de Instagram sirven?</summary><p>Cuentas Business o Creator con la API de Instagram con inicio de sesión de Instagram.</p></details><details><summary>¿Necesita un servidor?</summary><p>No. Todo corre en tu ordenador. Si quieres acceso remoto, hay un panel opcional que alojas tú en tu propia cuenta de Cloudflare.</p></details>
+</main>
+<footer><div class="wrap">Reelwright es un proyecto independiente de código abierto. No está afiliado a Meta, Instagram ni Anthropic. MIT © danikeinox</div></footer>
+</body>
+</html>

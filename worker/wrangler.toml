@@ -1,0 +1,19 @@
+name = "reelwright-remote"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+workers_dev = true
+
+# Created by `wrangler d1 create reelwright`; paste the database_id it prints.
+[[d1_databases]]
+binding = "DB"
+database_name = "reelwright"
+database_id = "REPLACE_WITH_YOUR_DATABASE_ID"
+
+[vars]
+# Fill these in after creating the Cloudflare Access application (see README.md).
+ACCESS_TEAM_DOMAIN = ""
+ACCESS_AUD = ""
+# Optional: only this email may use the dashboard, on top of the Access policy.
+ALLOWED_EMAIL = ""
+
+# AGENT_SECRET is a secret, never put it here:  npx wrangler secret put AGENT_SECRET

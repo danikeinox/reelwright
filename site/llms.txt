@@ -1,0 +1,20 @@
+# Reelwright
+
+> Reelwright is a local-first, open-source (MIT) MCP server that turns a website into Instagram Reels. Claude (or any MCP client) writes the copy; Reelwright renders a 1080x1920 reel on the user's own machine with Remotion, waits for explicit human approval, and publishes through the official Instagram API using a temporary Cloudflare tunnel or the user's own S3/R2 bucket. Optional local voice-over through any OpenAI-compatible TTS (e.g. VoiceStudio). No cloud service, no subscription.
+
+## Docs
+
+- [README](README.md): quick start, tools, security model, status
+- [Instagram setup](docs/instagram.md): Meta developer app, token, permissions
+- [Storage](docs/storage.md): tunnel vs S3/R2
+- [Voice-over](docs/voice.md): local TTS
+- [Connecting clients](docs/claude.md): Claude Desktop, Claude Code, Cursor
+- [Security policy](SECURITY.md)
+
+## Install
+
+npm install -g reelwright && reelwright setup
+
+## MCP tools
+
+doctor, brand_init, brand_get, render_reel, list_reels, get_reel, publish_reel, get_comments, reply_comment
