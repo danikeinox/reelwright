@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- **Scene reels**: `render_reel` accepts `scenes` instead of hook/lines: `title`, `phone` (a screenshot inside a 3D phone), `card` (animated status card: before → after with countdown → tap → done), `list`, `price` (count-up) and `cta` (logo + button), with crossfades and Instagram-safe layout. Plain text reels are unchanged.
+- **Logo**: `reelwright logo <file>` (PNG/WebP/JPEG, sniffed by content, transparent margins trimmed at render time). Shown at the top of text reels and on the first/last scene of scene reels.
+- **Media library**: `reelwright media add <file> --name <name>` for screenshots; new MCP tool `list_media`. The AI only refers to screenshots by name; it can never pass a path.
+- **Background music**: `reelwright music <file>` (WAV/MP3/M4A), faded in and out; on by default for scene reels, opt-in for text reels.
+- `doctor` reports logo, screenshots and music.
+- **Windows / Microsoft Store Claude**: `install-claude` and `setup` now also write the MSIX-virtualised config (`%LOCALAPPDATA%\Packages\Claude_*\LocalCache\Roaming\Claude\`); before, the Store build never saw Reelwright.
+
 ## 0.2.0
 
 - Local management panel (`reelwright ui`, MCP tool `open_dashboard`): connect Instagram/storage/voice, brand, review/edit/approve/publish. Loopback only, bearer token in the URL fragment, strict CSP, Host/Origin checks, secrets never read back.

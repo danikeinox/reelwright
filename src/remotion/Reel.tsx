@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import {
   AbsoluteFill,
   Audio,
+  Img,
   Sequence,
   continueRender,
   delayRender,
@@ -14,18 +15,9 @@ import {
 } from "remotion";
 
 import type { ReelProps, Segment } from "../types";
+import { FONT, useInterFont, useTrimmedLogo } from "./shared";
+import { SceneReel } from "./Scenes";
 export type { ReelProps, Segment } from "../types";
-
-const FONT = '"Inter Variable", Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
-
-function useInterFont(): void {
-  const [handle] = useState(() => delayRender("Loading Inter"));
-  useEffect(() => {
-    Promise.all([document.fonts.load('800 80px "Inter Variable"'), document.fonts.load('600 80px "Inter Variable"')])
-      .catch(() => undefined)
-      .finally(() => continueRender(handle));
-  }, [handle]);
-}
 
 function fontSizeFor(kind: Segment["kind"], text: string): number {
   const base = kind === "hook" ? 112 : kind === "line" ? 88 : 72;
@@ -90,10 +82,15 @@ const SegmentView: React.FC<{ seg: Segment; theme: ReelProps["theme"] }> = ({ se
   );
 };
 
-export const Reel: React.FC<ReelProps> = ({ brandName, theme, segments, totalFrames }) => {
+export const Reel: React.FC<ReelProps> = (props) => (props.scenes?.length ? <SceneReel {...props} /> : <TextReel {...props} />);
+
+const TextReel: React.FC<ReelProps> = ({ brandName, theme, segments, totalFrames, logoFile, musicFile }) => {
   useInterFont();
   const frame = useCurrentFrame();
   const drift = Math.sin(frame / 40);
+  const { fps } = useVideoConfig();
+  const logoSrc = useTrimmedLogo(logoFile);
+  const logoIn = spring({ frame, fps, config: { damping: 16, stiffness: 120, mass: 0.8 } });
 
   return (
     <AbsoluteFill style={{ background: `linear-gradient(160deg, ${theme.bg} 0%, #000000 140%)`, fontFamily: FONT }}>
@@ -104,27 +101,45 @@ export const Reel: React.FC<ReelProps> = ({ brandName, theme, segments, totalFra
         }}
       />
       <div style={{ position: "absolute", top: 0, left: 0, height: 10, width: `${(frame / totalFrames) * 100}%`, background: theme.accent }} />
+      {musicFile ? <Audio src={staticFile(musicFile)} volume={(f) => interpolate(f, [0, 15, totalFrames - 30, totalFrames], [0, 0.35, 0.35, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })} /> : null}
       {segments.map((seg, i) => (
         <Sequence key={i} from={seg.start} durationInFrames={seg.duration} layout="none">
           <SegmentView seg={seg} theme={theme} />
         </Sequence>
       ))}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 330,
-          width: "100%",
-          textAlign: "center",
-          fontSize: 34,
-          fontWeight: 600,
-          letterSpacing: "0.22em",
-          textTransform: "uppercase",
-          color: theme.fg,
-          opacity: 0.6,
-        }}
-      >
-        {brandName}
-      </div>
+      {logoSrc ? (
+        // Logo at the top, below Instagram's own top bar, so the bottom stays free for the caption overlay.
+        <div
+          style={{
+            position: "absolute",
+            top: 250,
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            opacity: logoIn,
+            transform: `translateY(${(1 - logoIn) * -30}px)`,
+          }}
+        >
+          <Img src={logoSrc} style={{ maxWidth: 560, maxHeight: 150, objectFit: "contain" }} />
+        </div>
+      ) : (
+        <div
+          style={{
+            position: "absolute",
+            bottom: 330,
+            width: "100%",
+            textAlign: "center",
+            fontSize: 34,
+            fontWeight: 600,
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: theme.fg,
+            opacity: 0.6,
+          }}
+        >
+          {brandName}
+        </div>
+      )}
     </AbsoluteFill>
   );
 };

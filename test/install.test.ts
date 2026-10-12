@@ -79,3 +79,23 @@ describe("install-claude", () => {
     assert.ok(claudeDesktopConfigPath().endsWith("claude_desktop_config.json"));
   });
 });
+
+describe("Claude Desktop from the Microsoft Store", () => {
+  it("also targets the virtualised MSIX config folder on Windows", async () => {
+    const { mkdtempSync, mkdirSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const { claudeDesktopConfigPaths } = await import("../src/install.js");
+    const local = mkdtempSync(join(tmpdir(), "rw-local-"));
+    try {
+      mkdirSync(join(local, "Packages", "Claude_abc123xyz"), { recursive: true });
+      mkdirSync(join(local, "Packages", "NotClaude_abc"), { recursive: true });
+      const paths = claudeDesktopConfigPaths("win32", local);
+      assert.equal(paths.length, 2);
+      assert.equal(paths[1], join(local, "Packages", "Claude_abc123xyz", "LocalCache", "Roaming", "Claude", "claude_desktop_config.json"));
+      assert.equal(claudeDesktopConfigPaths("linux", local).length, 1);
+    } finally {
+      rmSync(local, { recursive: true, force: true });
+    }
+  });
+});

@@ -2,6 +2,7 @@ import { getBrand } from "./brand.js";
 import { loadConfig, redact } from "./config.js";
 import { addReel, newReelId, updateReel, type Reel } from "./queue.js";
 import { renderReelVideo, type ReelRequest } from "./render.js";
+import { scenesSummary } from "./timeline.js";
 import type { ReelTheme } from "./types.js";
 
 const FALLBACK_THEME: ReelTheme = { bg: "#10121a", fg: "#ffffff", accent: "#ff5a1f" };
@@ -30,9 +31,7 @@ export async function startRender(req: ReelRequest): Promise<Reel> {
     id,
     createdAt: new Date().toISOString(),
     status: "rendering",
-    hook: req.hook,
-    lines: req.lines,
-    cta: req.cta,
+    ...(req.scenes ? scenesSummary(req.scenes) : { hook: req.hook!, lines: req.lines!, cta: req.cta }),
     caption: req.caption,
     voiceover: req.voiceover,
     progress: 0,

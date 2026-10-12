@@ -81,12 +81,23 @@ Muestra el estado, permite editar un texto, rechazar un reel y cambiar colores. 
 | `doctor` | Comprueba render, navegador, almacenamiento, Instagram y voz |
 | `brand_init` / `brand_get` | Lee tu web pública (nombre, colores, fuentes) |
 | `render_reel` | Renderiza un reel en local y lo deja pendiente de aprobación |
+| `list_media` | Nombres de las capturas que añadiste (para escenas de móvil) y si hay logo y música |
 | `list_reels` / `get_reel` | Progreso y estado |
 | `publish_reel` | Publica un reel **que tú aprobaste** |
 | `get_comments` / `reply_comment` | Lee comentarios; responde solo tras tu confirmación |
 | `open_dashboard` | Abre el panel local (su enlace privado nunca se muestra a la IA) |
 
 A propósito **no existe** ninguna herramienta que apruebe un reel.
+
+### Reels completos: escenas, capturas, logo y música
+
+Además del reel de texto, `render_reel` puede montar un reel por **escenas**: un titular grande animado, un móvil con una de tus capturas, una tarjeta animada (p. ej. *Agotado → Disponible → Pedido*), una lista, un precio y un cierre con tu logo, con música de fondo. Tú añades los archivos una vez y Claude solo los elige por nombre:
+
+```
+reelwright logo ./logo-blanco.png
+reelwright media add ./capturas/carrito.png --name carrito
+reelwright music ./mi-pista.wav        # solo música con derechos de uso
+```
 
 ## Seguridad
 
