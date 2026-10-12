@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,6 +14,31 @@ export function claudeDesktopConfigPath(): string {
     default:
       return join(process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config"), "Claude", "claude_desktop_config.json");
   }
+}
+
+/**
+ * Every config file Claude Desktop may read. On Windows, the Microsoft Store (MSIX) build of
+ * Claude is virtualised: it reads %LOCALAPPDATA%\\Packages\\Claude_<id>\\LocalCache\\Roaming\\Claude\\
+ * instead of %APPDATA%\\Claude\\, so writing only the classic path silently does nothing.
+ */
+export function claudeDesktopConfigPaths(
+  platform: NodeJS.Platform = process.platform,
+  localAppData: string | undefined = process.env.LOCALAPPDATA,
+): string[] {
+  const paths = [claudeDesktopConfigPath()];
+  if (platform === "win32") {
+    const packages = join(localAppData ?? join(homedir(), "AppData", "Local"), "Packages");
+    try {
+      for (const name of readdirSync(packages)) {
+        if (/^(Anthropic\.)?Claude_[a-z0-9]+$/i.test(name)) {
+          paths.push(join(packages, name, "LocalCache", "Roaming", "Claude", "claude_desktop_config.json"));
+        }
+      }
+    } catch {
+      /* no Store apps folder */
+    }
+  }
+  return paths;
 }
 
 export interface LaunchSpec {

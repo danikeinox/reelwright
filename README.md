@@ -116,12 +116,23 @@ The browser side is locked behind Cloudflare Access; your computer talks to the 
 | `doctor` | Checks render engine, browser, storage, Instagram and voice, and tells you how to fix problems |
 | `brand_init` / `brand_get` | Reads your public website (name, colours, fonts, headings) so reels match your brand |
 | `render_reel` | Renders a reel locally in the background and queues it for approval |
+| `list_media`                     | Names of the screenshots you added (for phone scenes), and whether a logo and music are set     |
 | `list_reels` / `get_reel` | Progress, status and file location |
 | `publish_reel` | Publishes a reel **that you approved** |
 | `get_comments` / `reply_comment` | Reads comments; replies only after you confirm the exact text |
 | `open_dashboard` | Opens the local panel in your browser (its private link is never shown to the AI) |
 
 There is deliberately **no** tool that approves a reel.
+
+### Rich reels: scenes, screenshots, logo and music
+
+Besides the simple text reel, `render_reel` can build a reel from **scenes**: a big kinetic title, a phone showing one of your screenshots, an animated status card (e.g. *Sold out → Back in stock → Ordered*), a checklist, a price and a closing call to action with your logo, with music underneath. You provide the files once; Claude only picks them by name:
+
+```
+reelwright logo ./logo-white.png
+reelwright media add ./screens/checkout.png --name checkout
+reelwright music ./my-track.wav        # only music you have the rights to
+```
 
 ## Security model
 
@@ -155,6 +166,7 @@ Guides: [Instagram setup](docs/instagram.md) · [Storage (tunnel / S3 / R2)](doc
 | `reelwright ui` | Open the management panel |
 | `reelwright doctor [--deep]` | Check that everything works |
 | `reelwright demo` | Render a sample reel |
+| `reelwright logo <file>` / `media add <file> --name x` / `music <file>` | Logo, screenshots and music for your reels (added by you, never by the AI) |
 | `reelwright list` / `approve <id>` / `reject <id>` | Manage the queue |
 | `reelwright install-claude` | Add Reelwright to Claude Desktop |
 | `reelwright remote init` / `remote` | Optional remote dashboard |

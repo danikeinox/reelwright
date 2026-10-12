@@ -147,17 +147,31 @@ export function createServer(): McpServer {
     {
       title: "Render a reel (on this computer)",
       description:
-        "Renders a 1080x1920 reel with animated text on the user's machine and queues it for human approval. Returns immediately with an id; rendering takes about 1–3 minutes, poll get_reel. Keep the copy short: hook ≤ 9 words, each line ≤ 14 words, 2–5 lines, one clear call to action. It does NOT publish.",
+        "Renders a 1080x1920 reel on the user's machine and queues it for human approval. Two styles: simple (hook + lines + cta: animated text) or rich (`scenes`: titles, phone screenshots, an animated status card, checklists, price, closing CTA with logo; call list_media first). Returns immediately with an id; rendering takes about 1–3 minutes, poll get_reel. Keep the copy short and concrete. It does NOT publish.",
       inputSchema: {
-        hook: z.string().describe("Opening line that stops the scroll (shown biggest)"),
-        lines: z.array(z.string()).describe("1–7 short lines shown one after another"),
-        cta: z.string().optional().describe("Closing call to action, e.g. 'Book your table — link in bio'"),
+        hook: z.string().optional().describe("Simple reels: opening line that stops the scroll (shown biggest)"),
+        lines: z.array(z.string()).optional().describe("Simple reels: 1–7 short lines shown one after another"),
+        cta: z.string().optional().describe("Simple reels: closing call to action, e.g. 'Book your table — link in bio'"),
+        scenes: z
+          .array(z.record(z.string(), z.unknown()))
+          .optional()
+          .describe(
+            "Rich reels (instead of hook/lines): 2–10 designed scenes, in order. Each scene is an object with `type` and optional `seconds` (1.5–8):\n" +
+              "- title {text ≤80, sub?} big kinetic headline (good opener)\n" +
+              "- phone {media, text ≤70, sub?} a phone showing a screenshot; `media` is a NAME from list_media (never a path)\n" +
+              "- card {text ≤70, before, after, done?, title, subtitle?, meta?, price?, button?, timer?} animated status card: shows `before` (e.g. 'Sold out'), flips to `after` (e.g. 'Back in stock') with a countdown `timer`, the `button` gets tapped, ends on `done`\n" +
+              "- list {text ≤60, items: 2–5 × ≤48} checklist that builds up\n" +
+              "- price {text?, big ≤16, small?, sub?} one big number, e.g. '29 €' + '/month'\n" +
+              "- cta {text ≤60, sub? ≤40 shown as a button, note? ≤70 small line under it} closing call to action with the logo (good closer)",
+          ),
         caption: z.string().describe("Instagram caption (max 2200 chars), including hashtags if wanted"),
         voiceover: z.boolean().optional().describe("Speak the text with the configured local TTS (default false)"),
         theme: z
           .object({ bg: z.string(), fg: z.string(), accent: z.string() })
           .optional()
           .describe("Override colours (6-digit hex). Defaults to the brand's palette."),
+        music: z.boolean().optional().describe("Background music the user set with `reelwright music` (default: on for scene reels, off for simple ones)"),
+        logo: z.boolean().optional().describe("Show the brand logo the user set with `reelwright logo` (default true; ignored if none is set)"),
       },
       annotations: { readOnlyHint: false, openWorldHint: false },
     },
@@ -175,6 +189,27 @@ export function createServer(): McpServer {
       } catch (e) {
         return fail(e instanceof z.ZodError ? new Error(e.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")) : e);
       }
+    },
+  );
+
+  server.registerTool(
+    "list_media",
+    {
+      title: "List screenshots for phone scenes",
+      description:
+        "Names of the screenshots the user added with `reelwright media add` (for `phone` scenes in render_reel), plus whether a logo and background music are set. Only the user can add files.",
+      inputSchema: {},
+      annotations: { readOnlyHint: true },
+    },
+    async () => {
+      const { listMedia, getMusic } = await import("./media.js");
+      const { getLogo } = await import("./logo.js");
+      return ok({
+        screenshots: listMedia().map((m) => m.name),
+        logo: !!getLogo(),
+        music: !!getMusic(),
+        howToAdd: "The user runs: reelwright media add <file> --name <name>   ·   reelwright logo <file>   ·   reelwright music <file>",
+      });
     },
   );
 

@@ -2,7 +2,7 @@
 import { Writable } from "node:stream";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { formatReport, runDoctor } from "./doctor.js";
-import { claudeCodeCommand, claudeDesktopConfigPath, installIntoClaudeDesktop } from "./install.js";
+import { claudeCodeCommand, claudeDesktopConfigPaths, installIntoClaudeDesktop } from "./install.js";
 import { startRender, waitForRenders } from "./jobs.js";
 import { confirm } from "./prompt.js";
 import { approveReel, reviewSnapshot, getReel, isValidReelId, listReels, reelFilePath, updateReel } from "./queue.js";
@@ -23,6 +23,9 @@ Usage: reelwright <command>
   install-claude        Add Reelwright to Claude Desktop (--print to only show, --uninstall to remove)
   doctor                Check that everything works                                  [--deep] [--json]
   demo                  Render a sample reel to prove the engine works               [--voice]
+  logo <file>           Use your logo (PNG, WebP or JPEG) in every reel             [--remove]
+  media add <file>      Add a screenshot for phone scenes      [--name checkout]   · media list · media remove <name>
+  music <file>          Background music for scene reels (WAV, MP3, M4A)            [--remove]
   list                  Show the reels in your queue
   approve <id>          Watch a rendered reel and approve it for publishing (human only)
   reject <id>           Reject a rendered reel
@@ -99,17 +102,22 @@ async function main(): Promise<void> {
 
     case "install-claude": {
       if (flag(rest, "--print")) {
-        console.log(`Claude Desktop config file: ${claudeDesktopConfigPath()}\nClaude Code:\n  ${claudeCodeCommand()}`);
+        console.log(`Claude Desktop config file(s):\n  ${claudeDesktopConfigPaths().join("\n  ")}\nClaude Code:\n  ${claudeCodeCommand()}`);
         return;
       }
       const cfgIdx = rest.indexOf("--config");
       const target = cfgIdx >= 0 ? rest[cfgIdx + 1] : undefined;
-      const r = installIntoClaudeDesktop(target, flag(rest, "--uninstall"));
-      console.log(
-        r.changed
-          ? `${flag(rest, "--uninstall") ? "Removed from" : "Added to"} ${r.configPath}${r.backupPath ? ` (backup: ${r.backupPath})` : ""}.\nRestart Claude Desktop to load it.`
-          : "Nothing to change.",
-      );
+      const targets = target ? [target] : claudeDesktopConfigPaths();
+      for (const t of targets) {
+        const r = installIntoClaudeDesktop(t, flag(rest, "--uninstall"));
+        console.log(
+          r.changed
+            ? `${flag(rest, "--uninstall") ? "Removed from" : "Added to"} ${r.configPath}${r.backupPath ? ` (backup: ${r.backupPath})` : ""}.`
+            : `Nothing to change in ${r.configPath}.`,
+        );
+      }
+      if (targets.length > 1) console.log("(Found the Microsoft Store version of Claude too: updated both config files.)");
+      console.log("Restart Claude Desktop to load it (quit it from the system tray, not just the window).");
       console.log(`\nClaude Code:\n  ${claudeCodeCommand()}`);
       return;
     }
@@ -139,6 +147,73 @@ async function main(): Promise<void> {
         return;
       }
       console.log(`Done in ${done.durationSeconds}s of video: ${reelFilePath(done)}`);
+      return;
+    }
+
+    case "logo": {
+      const { getLogo, removeLogo, setLogo } = await import("./logo.js");
+      if (flag(rest, "--remove")) {
+        console.log(removeLogo() ? "Logo removed. Reels will show the brand name instead." : "There was no logo to remove.");
+        return;
+      }
+      const file = rest.find((a) => !a.startsWith("--"));
+      if (!file) {
+        const cur = getLogo();
+        console.log(cur ? `Current logo: ${cur.file}` : "No logo set. Usage: reelwright logo <file.png|webp|jpg>");
+        return;
+      }
+      try {
+        const info = setLogo(file);
+        console.log(`Logo saved: ${info.file}\nIt will appear in every new reel (tip: a light logo with a transparent background suits the dark reels).`);
+      } catch (e) {
+        console.error((e as Error).message);
+        process.exitCode = 1;
+      }
+      return;
+    }
+
+    case "media": {
+      const { addMedia, listMedia, removeMedia } = await import("./media.js");
+      const [sub = "list", ...args] = rest;
+      try {
+        if (sub === "add") {
+          const file = args.find((a) => !a.startsWith("--"));
+          const ni = args.indexOf("--name");
+          if (!file) throw new Error("Usage: reelwright media add <file> [--name short-name]");
+          const m = addMedia(file, ni >= 0 ? args[ni + 1] : undefined);
+          console.log(`Added "${m.name}". Claude can now use it in a phone scene.`);
+        } else if (sub === "remove") {
+          console.log(args[0] && removeMedia(args[0]) ? `Removed "${args[0]}".` : "Nothing removed.");
+        } else {
+          const items = listMedia();
+          console.log(items.length ? items.map((m) => `${m.name.padEnd(24)} ${Math.round(m.bytes / 1024)} KB`).join("\n") : "No screenshots yet. Add one with: reelwright media add <file> --name <name>");
+        }
+      } catch (e) {
+        console.error((e as Error).message);
+        process.exitCode = 1;
+      }
+      return;
+    }
+
+    case "music": {
+      const { getMusic, removeMusic, setMusic } = await import("./media.js");
+      if (flag(rest, "--remove")) {
+        console.log(removeMusic() ? "Music removed." : "There was no music to remove.");
+        return;
+      }
+      const file = rest.find((a) => !a.startsWith("--"));
+      if (!file) {
+        const cur = getMusic();
+        console.log(cur ? `Current music: ${cur.file}` : "No music set. Usage: reelwright music <file.wav|mp3|m4a>");
+        return;
+      }
+      try {
+        const m = setMusic(file);
+        console.log(`Music saved: ${m.file}\nOnly use music you have the rights to.`);
+      } catch (e) {
+        console.error((e as Error).message);
+        process.exitCode = 1;
+      }
       return;
     }
 

@@ -2,7 +2,7 @@ import { ConfigSchema, ensureDirs, getPaths, readConfigFile, redact, saveConfigF
 import { findSystemBrowser } from "./browser.js";
 import { formatReport, runDoctor } from "./doctor.js";
 import { InstagramClient } from "./instagram.js";
-import { claudeCodeCommand, installIntoClaudeDesktop } from "./install.js";
+import { claudeCodeCommand, claudeDesktopConfigPaths, installIntoClaudeDesktop } from "./install.js";
 import { ask, confirm, isInteractive } from "./prompt.js";
 import { ensureRenderBrowser } from "./render.js";
 import { installCloudflared } from "./storage/cloudflared-install.js";
@@ -136,12 +136,15 @@ export async function runSetup(opts: SetupOptions = {}): Promise<void> {
   say("\n5/5  Connect to Claude");
   if (!opts.skipInstall) {
     if (opts.yes || (await confirm("     Add Reelwright to Claude Desktop now?", true))) {
-      try {
-        const r = installIntoClaudeDesktop();
-        say(r.changed ? `     Added to ${r.configPath}${r.backupPath ? ` (backup: ${r.backupPath})` : ""}. Restart Claude Desktop.` : "     Already configured.");
-      } catch (e) {
-        say(`     ${(e as Error).message}`);
+      for (const path of claudeDesktopConfigPaths()) {
+        try {
+          const r = installIntoClaudeDesktop(path);
+          say(r.changed ? `     Added to ${r.configPath}${r.backupPath ? ` (backup: ${r.backupPath})` : ""}.` : `     Already configured in ${r.configPath}.`);
+        } catch (e) {
+          say(`     ${(e as Error).message}`);
+        }
       }
+      say("     Restart Claude Desktop (quit it from the system tray, not just the window).");
     }
     say("     For Claude Code run:\n       " + claudeCodeCommand());
   }

@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { promisify } from "node:util";
 import { ensureDirs, getPaths, loadConfig, redact } from "./config.js";
 import { getBrand } from "./brand.js";
+import { getLogo } from "./logo.js";
+import { getMusic, listMedia } from "./media.js";
 import { InstagramClient } from "./instagram.js";
 import { bundleExists } from "./render.js";
 import { findCloudflared } from "./storage/tunnel.js";
@@ -178,6 +180,18 @@ export async function runDoctor(opts: DoctorOptions = {}): Promise<DoctorReport>
       ? { name: "Brand", status: "ok", detail: `${brand.name} (${brand.sourceUrl})` }
       : { name: "Brand", status: "info", detail: "Not set yet — ask Claude to run brand_init with your website URL" },
   );
+
+  const logo = getLogo();
+  add(
+    logo
+      ? { name: "Logo", status: "ok", detail: `${logo.file} (${Math.round(logo.bytes / 1024)} KB)` }
+      : { name: "Logo", status: "info", detail: "None — reels show the brand name instead. Add one with `reelwright logo <file>`" },
+  );
+
+  const shots = listMedia();
+  add({ name: "Screenshots", status: "info", detail: shots.length ? `${shots.length}: ${shots.map((m) => m.name).join(", ")}` : "None (optional, for phone scenes): reelwright media add <file> --name <name>" });
+  const music = getMusic();
+  add({ name: "Music", status: "info", detail: music ? music.file : "None (optional): reelwright music <file>" });
 
   const canRender = bundleOk && nodeOk() && (browserOk || !!cfg);
   const canPublish = !!cfg && igOk && storageOk && canRender;

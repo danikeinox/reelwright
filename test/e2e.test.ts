@@ -124,7 +124,7 @@ describe("MCP server over stdio (real process, real renderer)", { timeout: 600_0
     const { client, close } = await connect(home);
     try {
       const names = (await client.listTools()).tools.map((t) => t.name).sort();
-      assert.deepEqual(names, ["brand_get", "brand_init", "doctor", "get_comments", "get_reel", "list_reels", "open_dashboard", "publish_reel", "render_reel", "reply_comment"]);
+      assert.deepEqual(names, ["brand_get", "brand_init", "doctor", "get_comments", "get_reel", "list_media", "list_reels", "open_dashboard", "publish_reel", "render_reel", "reply_comment"]);
       assert.ok(!names.some((n) => /approve/i.test(n)));
       const info = client.getServerVersion();
       assert.equal(info?.name, "reelwright");
