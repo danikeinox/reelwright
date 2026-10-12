@@ -13,7 +13,7 @@ export interface AccessConfig {
 
 type Fetch = (url: string) => Promise<{ ok: boolean; json(): Promise<any> }>;
 
-const b64urlToBytes = (s: string): Uint8Array => {
+const b64urlToBytes = (s: string): Uint8Array<ArrayBuffer> => {
   const pad = "=".repeat((4 - (s.length % 4)) % 4);
   const bin = atob(s.replace(/-/g, "+").replace(/_/g, "/") + pad);
   return Uint8Array.from(bin, (c) => c.charCodeAt(0));
